@@ -15,7 +15,7 @@ fn main() {
 
     // TODO: Uncomment the code below to pass the first stage
     //
-    let listener = TcpListener::bind("127.0.0.1:4221").unwrap();
+    let listener = TcpListener::bind("127.0.0.1:4221").expect("Could not bind to port");
     
     for stream in listener.incoming() {
         match stream {
