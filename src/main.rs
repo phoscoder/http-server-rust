@@ -22,6 +22,10 @@ fn handle_connection(mut stream: TcpStream) {
             let echo_content = path.replace("/echo/", "");
             format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", echo_content.len(), echo_content).to_string()
         },
+        path if path.starts_with("/user-agent") => {
+          let ua = request.split("\r\n").find(|h| h.starts_with("User Agent:")).unwrap().replace("User Agent: ", "");
+          format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", ua.len(), ua).to_string()
+        },
         _ => "HTTP/1.1 404 Not Found\r\n\r\n".to_string(),
     };
         
