@@ -17,8 +17,12 @@ fn handle_connection(mut stream: TcpStream) {
     let line_path: Vec<&str> = request_line.split(" ").collect();
     
     let response = match line_path[1] {
-        path if path == "/" => "HTTP/1.1 200 OK\r\n\r\n",
-        _ => "HTTP/1.1 404 Not Found\r\n\r\n",
+        path if path == "/" => "HTTP/1.1 200 OK\r\n\r\n".to_string(),
+        path if path.starts_with("/echo") => {
+            let echo_content = path.replace("/echo/", "");
+            format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", echo_content.len(), echo_content).to_string()
+        },
+        _ => "HTTP/1.1 404 Not Found\r\n\r\n".to_string(),
     };
         
    stream.write_all(response.as_bytes()).unwrap();
