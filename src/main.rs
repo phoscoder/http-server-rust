@@ -23,6 +23,11 @@ fn handle_connection(mut stream: TcpStream) {
             let echo_content = path.replace("/echo/", "");
             format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", echo_content.len(), echo_content).to_string()
         },
+        path if path.starts_with("/files/") => {
+            let file_path = path.replace("/files/", "");
+            let content = std::fs::read_to_string(file_path).unwrap_or_default();
+            format!("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}", content.len(), content).to_string()
+        },
         path if path.starts_with("/user-agent") => {
           let ua = request.split("\r\n").find(|h| h.starts_with("User-Agent:")).unwrap().replace("User-Agent: ", "");
           format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", ua.len(), ua).to_string()
