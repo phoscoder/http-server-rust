@@ -2,11 +2,26 @@
 use std::net::TcpListener;
 use std::net::TcpStream;
 use std::io::Write;
+use std::io::Read;
+
 
 
 fn handle_connection(mut stream: TcpStream) {
-    let response = "HTTP/1.1 200 OK\r\n\r\n";
-    stream.write_all(response.as_bytes()).unwrap();
+    // let response = "HTTP/1.1 200 OK\r\n\r\n";
+    // stream.write_all(response.as_bytes()).unwrap();
+    let mut buffer = [0u8; 1024];
+    stream.read(&mut buffer).unwrap();
+    let request = String::from_utf8_lossy(&buffer);
+    
+    let request_line = request.split_once("\r\n").unwrap().0;
+    let line_path: Vec<&str> = request_line.split(" ").collect();
+    
+    let response = match line_path[1] {
+        path if path == "/" => "HTTP/1.1 200 OK\r\n\r\n",
+        _ => "HTTP/1.1 404 Not Found\r\n\r\n",
+    };
+        
+   stream.write_all(response.as_bytes()).unwrap();
 }
 
 fn main() {
