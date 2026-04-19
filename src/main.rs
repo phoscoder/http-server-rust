@@ -40,9 +40,9 @@ fn handle_connection(mut stream: TcpStream) {
             
             println!("directory: {}", directory);
             
-            let full_path = format!("{}/{}", directory, file_path);
+            let full_path = std::path::Path::new(&directory).join(&file_path);
             
-            println!("file_path: {}", full_path);
+            println!("file_path: {}", full_path.to_string_lossy());
             let content = std::fs::read_to_string(full_path).unwrap_or_default();
             format!("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}", content.len(), content).to_string()
         },
