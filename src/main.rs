@@ -25,8 +25,12 @@ fn handle_connection(mut stream: TcpStream) {
         },
         path if path.starts_with("/files/") => {
             let file_path = path.replace("/files/", "");
-            println!("file_path: {}", file_path);
-            let content = std::fs::read_to_string(file_path).unwrap_or_default();
+            
+            let directory = std::env::var("--directpry").unwrap();
+            let full_path = format!("{}/{}", directory, file_path);
+            
+            println!("file_path: {}", full_path);
+            let content = std::fs::read_to_string(full_path).unwrap_or_default();
             format!("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}", content.len(), content).to_string()
         },
         path if path.starts_with("/user-agent") => {
