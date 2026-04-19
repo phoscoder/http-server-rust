@@ -78,6 +78,7 @@ fn handle_connection(mut stream: TcpStream) {
             String::from("HTTP/1.1 201 Created\r\n\r\n")
         },
         path if path.starts_with("/user-agent") => {
+            
           let ua = headers.iter().find(|h| h.starts_with("User-Agent:")).unwrap().replace("User-Agent: ", "");
           format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", ua.len(), ua).to_string()
         },
