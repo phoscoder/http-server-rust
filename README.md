@@ -1,4 +1,4 @@
-[![progress-banner](https://backend.codecrafters.io/progress/http-server/e523cf6d-d65e-4012-94d9-1fb436404389)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
+[![progress-banner](https://backend.codecrafters.io/progress/http-server/e523cf6d-d65e-4012-94d9-1fb436404389)](https://app.codecrafters.io/users/phoscoder?r=2qF)
 
 This project is a Rust implementation of an HTTP/1.1 server, built as part of the ["Build Your Own HTTP server" Challenge](https://app.codecrafters.io/courses/http-server/overview) by CodeCrafters.
 
