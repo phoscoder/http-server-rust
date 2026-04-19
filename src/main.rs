@@ -134,7 +134,7 @@ fn handle_connection(mut stream: TcpStream) {
         
         let conn_header = get_header(&headers, "Connection");
         if conn_header.to_lowercase() == "close" {
-            stream.write_all("Connection:close".as_bytes()).unwrap();
+            stream.write_all("HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: 10\r\n".as_bytes()).unwrap();
             break;
         }
     }
