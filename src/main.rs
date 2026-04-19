@@ -73,7 +73,7 @@ fn handle_connection(mut stream: TcpStream) {
         path if path.starts_with("/echo") => {
             let echo_content = path.replace("/echo/", "");
 
-            let mut response: String = String::from("");
+            let response: String;
             let accept_encoding = get_header(&headers, "Accept-Encoding");
             if accept_encoding.contains("gzip") { 
                 compressed_content = gzip_compress(&echo_content);
