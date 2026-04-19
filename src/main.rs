@@ -30,8 +30,8 @@ fn handle_connection(mut stream: TcpStream) {
                 .collect::<Vec<String>>()
                 .iter()
                 .find(|a| a.starts_with("--directory="))
-                .unwrap()
-                .replace("--directory=", "");
+                .map(|a| a.replace("--directory=", ""))
+                .unwrap_or_default();
             
             println!("directory: {}", directory);
             
