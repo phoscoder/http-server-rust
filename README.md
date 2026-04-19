@@ -1,38 +1,39 @@
 [![progress-banner](https://backend.codecrafters.io/progress/http-server/e523cf6d-d65e-4012-94d9-1fb436404389)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
 
-This is a starting point for Rust solutions to the
-["Build Your Own HTTP server" Challenge](https://app.codecrafters.io/courses/http-server/overview).
+This project is a Rust implementation of an HTTP/1.1 server, built as part of the ["Build Your Own HTTP server" Challenge](https://app.codecrafters.io/courses/http-server/overview) by CodeCrafters.
 
 [HTTP](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol) is the
-protocol that powers the web. In this challenge, you'll build a HTTP/1.1 server
-that is capable of serving multiple clients.
-
-Along the way you'll learn about TCP servers,
-[HTTP request syntax](https://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html),
-and more.
+protocol that powers the web. This server is capable of handling multiple clients concurrently and understanding basic HTTP requests.
 
 **Note**: If you're viewing this repo on GitHub, head over to
 [codecrafters.io](https://codecrafters.io) to try the challenge.
 
-# Passing the first stage
+## 🚀 Features
 
-The entry point for your HTTP server implementation is in `src/main.rs`. Study
-and uncomment the relevant code, and push your changes to pass the first stage:
+This HTTP server supports the following features:
+*   **TCP Server**: Establishes a TCP listener to accept client connections.
+*   **Concurrent Client Handling** 🧑‍🤝‍🧑: Uses Tokio's asynchronous capabilities to manage multiple client connections simultaneously.
+*   **HTTP Request Parsing**: Parses incoming HTTP/1.1 requests, including headers and body.
+*   **Route Handling**:
+    *   `/`: Responds with a 200 OK.
+    *   `/echo/{str}` 🌬️: Responds with the `{str}` part of the path. Supports `gzip` compression if requested by the `Accept-Encoding` header.
+    *   `/user-agent` 🕵️: Responds with the value of the `User-Agent` header from the request.
+    *   `/files/{filename}`:
+        *   `GET` 📄: Serves the content of `{filename}` from a specified directory.
+        *   `POST` 💾: Saves the request body to `{filename}` in a specified directory.
+*   **Response Generation**: Constructs appropriate HTTP responses, including status codes, headers (like `Content-Type`, `Content-Length`, `Content-Encoding`), and body.
+*   **File System Interaction**: Reads files from and writes files to the local file system.
+*   **Keep-Alive Connections** 🔄: Supports persistent connections based on the `Connection` header.
+*   **Configurable Directory**: Allows specifying the directory to serve files from via a command-line argument.
+*   **Timeout Handling** ⏳: Implements a read timeout for client connections to prevent server hangs.
 
-```sh
-git commit -am "pass 1st stage" # any msg
-git push origin master
-```
+## 🛠️ Usage
 
-Time to move on to the next stage!
-
-# Stage 2 & beyond
-
-Note: This section is for stages 2 and beyond.
-
-1. Ensure you have `cargo (1.94)` installed locally
-1. Run `./your_program.sh` to run your program, which is implemented in
-   `src/main.rs`. This command compiles your Rust project, so it might be slow
-   the first time you run it. Subsequent runs will be fast.
-1. Commit your changes and run `git push origin master` to submit your solution
-   to CodeCrafters. Test output will be streamed to your terminal.
+1.  Ensure you have `cargo` (Rust's package manager and build tool) installed.
+2.  Clone the repository.
+3.  Run the server using:
+    ```sh
+    cargo run [-- --directory /path/to/your/files]
+    ```
+    Replace `/path/to/your/files` with the actual directory you want to serve files from. If no directory is specified, it defaults to the current directory.
+4.  The server will start on `127.0.0.1:4221` by default.
