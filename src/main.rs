@@ -32,7 +32,7 @@ fn process_request(stream: &mut TcpStream) -> (String, String, Vec<String>, Stri
     let url_path = line_path[1].to_string();
     
     let headers = request.split("\r\n")
-        .filter(|l| !l.contains(":"))
+        .filter(|l| l.contains(":"))
         .map(|l| l.to_string())
         .collect::<Vec<String>>();
     
