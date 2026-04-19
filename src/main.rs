@@ -70,11 +70,7 @@ fn handle_connection(mut stream: TcpStream) {
             let file_path = path.replace("/files/", "");
             let full_path = std::path::Path::new(&directory).join(&file_path);
             
-            println!("{}", full_path.to_string_lossy());
-            println!("The COntent: {}", content);
-            
             let _ = std::fs::write(full_path, content);
-       
             String::from("HTTP/1.1 201 Created\r\n\r\n")
         },
         path if path.starts_with("/user-agent") => {
