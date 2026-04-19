@@ -72,7 +72,7 @@ fn handle_connection(mut stream: TcpStream) {
             
             let _ = std::fs::write(full_path, content);
        
-            "HTTP/1.1 201 Created\r\n\r\n".to_string()   
+            String::from("HTTP/1.1 201 Created\r\n\r\n")
         },
         path if path.starts_with("/user-agent") => {
           let ua = headers.iter().find(|h| h.starts_with("User-Agent:")).unwrap().replace("User-Agent: ", "");
