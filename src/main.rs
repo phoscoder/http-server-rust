@@ -73,6 +73,8 @@ fn handle_connection(mut stream: TcpStream) {
             Some(data) => data,
             _ => break,
         };
+        
+        let conn_header = get_header(&headers, "Connection");
 
         let mut compressed_content = Vec::<u8>::new();
 
@@ -81,7 +83,7 @@ fn handle_connection(mut stream: TcpStream) {
             path if path.starts_with("/echo") => {
                 let echo_content = path.replace("/echo/", "");
 
-                let response: String;
+                let mut response: String;
                 let accept_encoding = get_header(&headers, "Accept-Encoding");
                 if accept_encoding.contains("gzip") {
                     compressed_content = gzip_compress(&echo_content);
@@ -92,6 +94,10 @@ fn handle_connection(mut stream: TcpStream) {
                     );
                 } else {
                     response = format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", echo_content.len(), echo_content).to_string();
+                }
+                
+                if conn_header.to_lowercase() == "close" {
+                    response = response.replace("\r\n\r\n", "\r\nConnection: close\r\n\r\n");
                 }
 
                 response.to_string()
@@ -132,9 +138,8 @@ fn handle_connection(mut stream: TcpStream) {
             stream.write_all(&compressed_content).unwrap();
         }
         
-        let conn_header = get_header(&headers, "Connection");
+
         if conn_header.to_lowercase() == "close" {
-            stream.write_all("HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: 10\r\n".as_bytes()).unwrap();
             break;
         }
     }
