@@ -37,14 +37,16 @@ fn handle_connection(mut stream: TcpStream) {
                     }
                 }
             }
-            
-            println!("directory: {}", directory);
+
             
             let full_path = std::path::Path::new(&directory).join(&file_path);
             
-            println!("file_path: {}", full_path.to_string_lossy());
-            let content = std::fs::read_to_string(full_path).unwrap_or_default();
-            format!("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}", content.len(), content).to_string()
+            if full_path.exists() {
+                let content = std::fs::read_to_string(full_path).unwrap_or_default();
+                format!("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {}\r\n\r\n{}", content.len(), content).to_string()
+            }else{
+                "HTTP/1.1 404 Not Found\r\n\r\n".to_string()
+            }
         },
         path if path.starts_with("/user-agent") => {
           let ua = request.split("\r\n").find(|h| h.starts_with("User-Agent:")).unwrap().replace("User-Agent: ", "");
