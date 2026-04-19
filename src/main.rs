@@ -41,6 +41,14 @@ fn process_request(stream: &mut TcpStream) -> (String, String, Vec<String>, Stri
     (method, url_path, headers, content)
 }
 
+fn get_header(headers: &[String], name: &str) -> String {
+    headers.iter()
+        .find(|h| h.starts_with(name))
+        .and_then(|h| h.split_once(":"))
+        .map(|(_, value)| value.trim().to_string())
+        .unwrap_or_default()
+}
+
 fn handle_connection(mut stream: TcpStream) {
     // let response = "HTTP/1.1 200 OK\r\n\r\n";
     // stream.write_all(response.as_bytes()).unwrap();
@@ -75,7 +83,7 @@ fn handle_connection(mut stream: TcpStream) {
         },
         path if path.starts_with("/user-agent") => {
             
-          let ua = headers.iter().find(|h| h.starts_with("User-Agent:")).unwrap().replace("User-Agent: ", "");
+          let ua = get_header(&headers, "User-Agent");
           format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", ua.len(), ua).to_string()
         },
         _ => "HTTP/1.1 404 Not Found\r\n\r\n".to_string(),
