@@ -26,7 +26,15 @@ fn handle_connection(mut stream: TcpStream) {
         path if path.starts_with("/files/") => {
             let file_path = path.replace("/files/", "");
             
-            let directory = std::env::var("--directpry").unwrap();
+            let directory = std::env::args()
+                .collect::<Vec<String>>()
+                .iter()
+                .find(|a| a.starts_with("--directory="))
+                .unwrap()
+                .replace("--directory=", "");
+            
+            println!("directory: {}", directory);
+            
             let full_path = format!("{}/{}", directory, file_path);
             
             println!("file_path: {}", full_path);
