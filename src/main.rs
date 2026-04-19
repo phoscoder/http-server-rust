@@ -26,12 +26,17 @@ fn handle_connection(mut stream: TcpStream) {
         path if path.starts_with("/files/") => {
             let file_path = path.replace("/files/", "");
             
-            let directory = std::env::args()
-                .collect::<Vec<String>>()
-                .iter()
-                .find(|a| a.starts_with("--directory="))
-                .map(|a| a.replace("--directory=", ""))
-                .unwrap_or_default();
+            let args: Vec<String> = std::env::args().collect();
+            let mut directory = String::new();
+            
+            for (i, arg) in args.iter().enumerate() {
+                if arg == "--directory" {
+                    if let Some(dir)= args.get(i + 1) {
+                        directory = dir.clone();
+                        break;
+                    }
+                }
+            }
             
             println!("directory: {}", directory);
             
