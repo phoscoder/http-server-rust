@@ -5,6 +5,15 @@ use std::io::Write;
 use std::io::Read;
 use std::thread;
 
+use flate2::write::GzEncoder;
+use flate2::Compression;
+
+fn gzip_compress(content: &str) -> Vec<u8> {
+    let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+    encoder.write_all(content.as_bytes()).unwrap();
+    encoder.finish().unwrap()
+}
+
 
 fn get_directory_arg() -> String{
     let args: Vec<String> = std::env::args().collect();
@@ -57,19 +66,25 @@ fn handle_connection(mut stream: TcpStream) {
     let directory = get_directory_arg();
     let (method, url_path, headers, content) = process_request(&mut stream);
     
+    let mut compressed_content = Vec::<u8>::new();
+    
     let response = match url_path {
         path if path == "/" => "HTTP/1.1 200 OK\r\n\r\n".to_string(),
         path if path.starts_with("/echo") => {
             let echo_content = path.replace("/echo/", "");
-            let mut content_encoding = "";
-            
+
+            let mut response: String = String::from("");
             let accept_encoding = get_header(&headers, "Accept-Encoding");
-            if accept_encoding.contains("gzip") {
-                content_encoding = "Content-Encoding: gzip\r\n";
+            if accept_encoding.contains("gzip") { 
+                compressed_content = gzip_compress(&echo_content);
+                response =  format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: {}\r\nContent-Length: {}\r\n\r\n", 
+                    "gzip".to_string(), 
+                    compressed_content.len());
+            }else{
+                 response = format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", echo_content.len(), echo_content).to_string();
             }
             
-            
-            format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n{}Content-Length: {}\r\n\r\n{}", content_encoding, echo_content.len(), echo_content).to_string()
+            response.to_string()
         },
         path if path.starts_with("/files/") && method == "GET" => {
             let file_path = path.replace("/files/", "");
@@ -98,6 +113,10 @@ fn handle_connection(mut stream: TcpStream) {
     };
         
    stream.write_all(response.as_bytes()).unwrap();
+   
+   if compressed_content.len() > 0 {
+       stream.write_all(&compressed_content).unwrap();
+   }
 }
 
 fn main() {
