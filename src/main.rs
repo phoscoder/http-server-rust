@@ -61,7 +61,15 @@ fn handle_connection(mut stream: TcpStream) {
         path if path == "/" => "HTTP/1.1 200 OK\r\n\r\n".to_string(),
         path if path.starts_with("/echo") => {
             let echo_content = path.replace("/echo/", "");
-            format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", echo_content.len(), echo_content).to_string()
+            let mut content_encoding = "";
+            
+            let accept_encoding = get_header(&headers, "Accept-Encoding");
+            if accept_encoding.contains("gzip") {
+                content_encoding = "Content-Encoding: gzip\r\n";
+            }
+            
+            
+            format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n{}Content-Length: {}\r\n\r\n{}", content_encoding, echo_content.len(), echo_content).to_string()
         },
         path if path.starts_with("/files/") && method == "GET" => {
             let file_path = path.replace("/files/", "");
