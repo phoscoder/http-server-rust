@@ -78,12 +78,12 @@ fn handle_connection(mut stream: TcpStream) {
 
         let mut compressed_content = Vec::<u8>::new();
 
-        let response = match url_path {
+        let mut response = match url_path {
             path if path == "/" => "HTTP/1.1 200 OK\r\n\r\n".to_string(),
             path if path.starts_with("/echo") => {
                 let echo_content = path.replace("/echo/", "");
 
-                let mut response: String;
+                let response: String;
                 let accept_encoding = get_header(&headers, "Accept-Encoding");
                 if accept_encoding.contains("gzip") {
                     compressed_content = gzip_compress(&echo_content);
@@ -94,10 +94,6 @@ fn handle_connection(mut stream: TcpStream) {
                     );
                 } else {
                     response = format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", echo_content.len(), echo_content).to_string();
-                }
-                
-                if conn_header.to_lowercase() == "close" {
-                    response = response.replace("\r\n\r\n", "\r\nConnection: close\r\n\r\n");
                 }
 
                 response.to_string()
@@ -131,6 +127,11 @@ fn handle_connection(mut stream: TcpStream) {
             }
             _ => "HTTP/1.1 404 Not Found\r\n\r\n".to_string(),
         };
+        
+        
+        if conn_header.to_lowercase() == "close" {
+            response = response.replace("\r\n\r\n", "\r\nConnection: close\r\n\r\n");
+        }
 
         stream.write_all(response.as_bytes()).unwrap();
 
